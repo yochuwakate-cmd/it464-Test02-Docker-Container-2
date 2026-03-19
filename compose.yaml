@@ -1,10 +1,10 @@
-name: ${IT464} # (0) กำหนดชื่อโปรเจคให้สอดคล้องกับ .env [4]
+name: ${IT464-Test02-Docker-Container-2} # (0) กำหนดชื่อโปรเจคให้สอดคล้องกับ .env [4]
 
 services:
   # 1. ฐานข้อมูล (Database)
   db-node:
     image: mariadb:10.6
-    container_name: ${YOCHUWA_KATE}-db # (1.1) กำหนดชื่อคอนเทนเนอร์ให้สอดคล้องกับ .env [4]
+    container_name: ${YOCHUWA}-db # (1.1) กำหนดชื่อคอนเทนเนอร์ให้สอดคล้องกับ .env [4]
     restart: always
     environment:
       MARIADB_DATABASE: ${TEST02_DB} # (1.2) กำหนดชื่อฐานข้อมูลให้สอดคล้องกับ .env [4]
@@ -21,7 +21,7 @@ services:
   # 2. ส่วนประมวลผล (Backend)
   backend-php:
     image: bitnami/php-fpm:latest
-    container_name: ${YOCHUWA_KATE}-php # (2.1) กำหนดชื่อคอนเทนเนอร์ให้สอดคล้องกับ .env [4]
+    container_name: ${YOCHUWA}-php # (2.1) กำหนดชื่อคอนเทนเนอร์ให้สอดคล้องกับ .env [4]
     volumes:
       - ./app:/var/www/html # (2.2) เติมชื่อโฟลเดอร์ที่เก็บไฟล์โค้ดของ Backend
     networks:
@@ -32,11 +32,11 @@ services:
   # 3. ส่วนรับงานหน้าบ้าน (Web Proxy)
   web-server:
     image: nginx:latest # (3.1) เติมชื่อ Image ที่ต้องการใช้ เช่น nginx:latest
-    container_name: ${YOCHUWA_KATE}-web # (3.2) กำหนดชื่อคอนเทนเนอร์ให้สอดคล้องกับ .env [4]
+    container_name: ${YOCHUWA}-web # (3.2) กำหนดชื่อคอนเทนเนอร์ให้สอดคล้องกับ .env [4]
     volumes:
       - ./app:/var/www/html
     ports:
-      - "${HTTP_PORT}:80"  # (3.3) กำหนดพอร์ตให้สอดคล้องกับ .env [4]
+      - "${HTTP_PORT}:12401"  # (3.3) กำหนดพอร์ตให้สอดคล้องกับ .env [4]
     configs:
       - source: my-nginx-conf # (3.4) เติมชื่อ Config ที่ประกาศด้านล่าง [10]
         target: /etc/nginx/conf.d/default.conf
@@ -50,12 +50,12 @@ services:
   # 4. ส่วนจัดการฐานข้อมูล (phpMyAdmin)
   pwm-tool:
     image: phpmyadmin:latest
-    container_name: ${YOCHUWA_KATE}-pma # (4.1) กำหนดชื่อคอนเทนเนอร์ให้สอดคล้องกับ .env [4]
+    container_name: ${YOCHUWA}-pma # (4.1) กำหนดชื่อคอนเทนเนอร์ให้สอดคล้องกับ .env [4]
     environment:
       PMA_HOST: db-node # (4.2) เติมชื่อบริการฐานข้อมูลที่ประกาศด้านบน [1]
       PMA_PASSWORD_FILE: /run/secrets/db_pass # (4.3) เติมชื่อ Secret ที่ประกาศด้านล่าง [10]
     ports:
-      - "${PMA_PORT}:80" # (4.4) กำหนดพอร์ตให้สอดคล้องกับ .env [4]
+      - "${PMA_PORT}:12402" # (4.4) กำหนดพอร์ตให้สอดคล้องกับ .env [4]
     networks:
       - frontend-zone
       - backend-zone # (4.5) เชื่อมกับวงปิดสำหรับ DB [2]
